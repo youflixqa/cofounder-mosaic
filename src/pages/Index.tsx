@@ -2,6 +2,7 @@ import { FounderCard } from "@/components/FounderCard";
 import { FilterSection } from "@/components/FilterSection";
 import { ConnectionRequests } from "@/components/ConnectionRequests";
 import { MyConnections } from "@/components/MyConnections";
+import ProfileDropdown from "@/components/ProfileDropdown";
 import { useState } from "react";
 import { ConnectionWithProfile } from "@/types/connection";
 
@@ -99,23 +100,24 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState<'discover' | 'requests' | 'connections'>('discover');
 
   const handleConnect = async (founderId: string) => {
-    // TODO: Implement connection logic
     console.log("Connecting with founder:", founderId);
   };
 
   const handleAcceptRequest = async (connectionId: string) => {
-    // TODO: Implement accept request logic
     console.log("Accepting connection request:", connectionId);
   };
 
   const handleRejectRequest = async (connectionId: string) => {
-    // TODO: Implement reject request logic
     console.log("Rejecting connection request:", connectionId);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-white">
       <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-end mb-8">
+          <ProfileDropdown />
+        </div>
+
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent mb-4">
             Find Your Perfect Co-Founder
