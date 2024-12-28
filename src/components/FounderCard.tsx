@@ -1,39 +1,56 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Code2, Briefcase } from "lucide-react";
+import { ConnectionButton } from "./ConnectionButton";
 
 interface FounderCardProps {
+  id: string;
   name: string;
   role: string;
   city: string;
   techStack: string[];
   industry: string;
   imageUrl: string;
+  isConnected: boolean;
+  isPendingConnection: boolean;
+  onConnect: () => Promise<void>;
 }
 
 export const FounderCard = ({
+  id,
   name,
   role,
   city,
   techStack,
   industry,
   imageUrl,
+  isConnected,
+  isPendingConnection,
+  onConnect,
 }: FounderCardProps) => {
   return (
     <Card className="group relative overflow-hidden p-6 transition-all hover:shadow-xl hover:animate-card-hover bg-gradient-to-br from-white to-purple-50 border-2 border-primary/20">
       <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity" />
       
       <div className="relative z-10">
-        <div className="flex items-start gap-4">
-          <img
-            src={imageUrl}
-            alt={name}
-            className="w-16 h-16 rounded-full object-cover border-2 border-primary"
-          />
-          <div>
-            <h3 className="text-2xl font-bold text-gray-900">{name}</h3>
-            <p className="text-lg text-gray-600">{role}</p>
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start gap-4">
+            <img
+              src={imageUrl}
+              alt={name}
+              className="w-16 h-16 rounded-full object-cover border-2 border-primary"
+            />
+            <div>
+              <h3 className="text-2xl font-bold text-gray-900">{name}</h3>
+              <p className="text-lg text-gray-600">{role}</p>
+            </div>
           </div>
+          <ConnectionButton
+            founderId={id}
+            isConnected={isConnected}
+            isPending={isPendingConnection}
+            onConnect={onConnect}
+          />
         </div>
 
         <div className="mt-4 space-y-3">
