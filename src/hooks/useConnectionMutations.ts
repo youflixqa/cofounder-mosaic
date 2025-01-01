@@ -19,7 +19,8 @@ export const useConnectionMutations = () => {
       queryClient.invalidateQueries({ queryKey: ['connections'] });
       toast.success("Connection request accepted!");
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Accept connection error:', error);
       toast.error("Failed to accept connection request");
     }
   });
@@ -37,7 +38,8 @@ export const useConnectionMutations = () => {
       queryClient.invalidateQueries({ queryKey: ['connectionRequests'] });
       toast.success("Connection request rejected");
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Reject connection error:', error);
       toast.error("Failed to reject connection request");
     }
   });
@@ -47,6 +49,18 @@ export const useConnectionMutations = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
+      // Check if a connection already exists
+      const { data: existingConnection } = await supabase
+        .from('connections')
+        .select()
+        .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+        .or(`sender_id.eq.${founderId},receiver_id.eq.${founderId}`)
+        .single();
+
+      if (existingConnection) {
+        throw new Error('Connection already exists');
+      }
+
       const { error } = await supabase
         .from('connections')
         .insert({
@@ -55,13 +69,22 @@ export const useConnectionMutations = () => {
           status: 'pending'
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Create connection error:', error);
+        throw error;
+      }
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['connections'] });
       toast.success("Connection request sent!");
     },
-    onError: () => {
-      toast.error("Failed to send connection request");
+    onError: (error) => {
+      console.error('Create connection error:', error);
+      if (error instanceof Error && error.message === 'Connection already exists') {
+        toast.error("A connection with this user already exists");
+      } else {
+        toast.error("Failed to send connection request");
+      }
     }
   });
 

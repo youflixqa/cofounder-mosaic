@@ -21,9 +21,9 @@ export const ConnectionButton = ({
     try {
       setIsLoading(true);
       await onConnect();
-      toast.success("Connection request sent!");
     } catch (error) {
-      toast.error("Failed to send connection request");
+      console.error('Connection button error:', error);
+      // Error is handled by the mutation
     } finally {
       setIsLoading(false);
     }
