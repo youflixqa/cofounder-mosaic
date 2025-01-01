@@ -5,6 +5,8 @@ import { MyConnections } from "@/components/MyConnections";
 import ProfileDropdown from "@/components/ProfileDropdown";
 import { useState } from "react";
 import { ConnectionWithProfile } from "@/types/connection";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const mockFounders = [
   {
@@ -54,61 +56,86 @@ const mockFounders = [
   },
 ];
 
-const mockRequests: ConnectionWithProfile[] = [
-  {
-    id: "1",
-    senderId: "4",
-    receiverId: "current-user",
-    status: "pending",
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    sender: {
-      name: "Vikram Singh",
-      role: "AI Engineer",
-      imageUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
-    },
-    receiver: {
-      name: "Current User",
-      role: "Frontend Developer",
-      imageUrl: "",
-    },
-  },
-];
-
-const mockConnections: ConnectionWithProfile[] = [
-  {
-    id: "2",
-    senderId: "5",
-    receiverId: "current-user",
-    status: "accepted",
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    sender: {
-      name: "Neha Gupta",
-      role: "Product Manager",
-      imageUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop",
-    },
-    receiver: {
-      name: "Current User",
-      role: "Frontend Developer",
-      imageUrl: "",
-    },
-  },
-];
-
 const Index = () => {
   const [activeTab, setActiveTab] = useState<'discover' | 'requests' | 'connections'>('discover');
+  const queryClient = useQueryClient();
+
+  // Fetch connection requests
+  const { data: requests = [], isLoading: isLoadingRequests } = useQuery({
+    queryKey: ['connectionRequests'],
+    queryFn: async () => {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) throw new Error('Not authenticated');
+
+      const { data, error } = await supabase
+        .from('connections')
+        .select(`
+          id,
+          sender_id,
+          receiver_id,
+          status,
+          created_at,
+          updated_at,
+          sender:profiles!connections_sender_id_fkey (
+            name:full_name,
+            role,
+            imageUrl:image_url
+          )
+        `)
+        .eq('receiver_id', user.user.id)
+        .eq('status', 'pending');
+
+      if (error) throw error;
+      return data as ConnectionWithProfile[];
+    },
+  });
+
+  // Handle accept connection request
+  const acceptMutation = useMutation({
+    mutationFn: async (connectionId: string) => {
+      const { error } = await supabase
+        .from('connections')
+        .update({ status: 'accepted' })
+        .eq('id', connectionId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['connectionRequests'] });
+      queryClient.invalidateQueries({ queryKey: ['connections'] });
+    },
+  });
+
+  // Handle reject connection request
+  const rejectMutation = useMutation({
+    mutationFn: async (connectionId: string) => {
+      const { error } = await supabase
+        .from('connections')
+        .update({ status: 'rejected' })
+        .eq('id', connectionId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['connectionRequests'] });
+    },
+  });
 
   const handleConnect = async (founderId: string) => {
-    console.log("Connecting with founder:", founderId);
-  };
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
 
-  const handleAcceptRequest = async (connectionId: string) => {
-    console.log("Accepting connection request:", connectionId);
-  };
+    const { error } = await supabase
+      .from('connections')
+      .insert({
+        sender_id: user.id,
+        receiver_id: founderId,
+        status: 'pending'
+      });
 
-  const handleRejectRequest = async (connectionId: string) => {
-    console.log("Rejecting connection request:", connectionId);
+    if (error) {
+      console.error('Error connecting:', error);
+    }
   };
 
   return (
@@ -179,9 +206,9 @@ const Index = () => {
           <div className="bg-white rounded-lg p-6 shadow-lg">
             <h2 className="text-2xl font-bold mb-6">Connection Requests</h2>
             <ConnectionRequests
-              requests={mockRequests}
-              onAccept={handleAcceptRequest}
-              onReject={handleRejectRequest}
+              requests={requests}
+              onAccept={(id) => acceptMutation.mutate(id)}
+              onReject={(id) => rejectMutation.mutate(id)}
             />
           </div>
         )}
