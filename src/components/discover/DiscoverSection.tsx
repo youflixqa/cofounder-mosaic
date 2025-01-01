@@ -4,6 +4,7 @@ import { useConnectionMutations } from "@/hooks/useConnectionMutations";
 import { useCallback, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useSessionContext } from '@supabase/auth-helpers-react';
 
 interface Filters {
   search: string;
@@ -13,6 +14,7 @@ interface Filters {
 }
 
 export const DiscoverSection = () => {
+  const { session } = useSessionContext();
   const [filters, setFilters] = useState<Filters>({
     search: "",
     city: "",
@@ -43,6 +45,11 @@ export const DiscoverSection = () => {
         query = query.contains("tech_stack", [filters.technology]);
       }
 
+      // Don't show the current user in the list
+      if (session?.user?.id) {
+        query = query.neq('id', session.user.id);
+      }
+
       const { data, error } = await query;
 
       if (error) {
@@ -52,6 +59,7 @@ export const DiscoverSection = () => {
 
       return data || [];
     },
+    enabled: !!session,
   });
 
   const { createConnection } = useConnectionMutations();
