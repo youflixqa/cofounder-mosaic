@@ -20,16 +20,33 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-white flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-white flex items-center justify-center p-4">
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
         <h1 className="text-3xl font-bold text-center mb-8 bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
           Welcome Back
         </h1>
         <Auth
           supabaseClient={supabase}
-          appearance={{ theme: ThemeSupa }}
+          appearance={{
+            theme: ThemeSupa,
+            variables: {
+              default: {
+                colors: {
+                  brand: '#2563eb',
+                  brandAccent: '#1d4ed8',
+                }
+              }
+            },
+            className: {
+              container: 'w-full',
+              button: 'w-full px-4 py-2 rounded-md',
+              input: 'rounded-md',
+            }
+          }}
           providers={['google', 'github']}
-          theme="light"
+          view="sign_in"
+          showLinks={true}
+          redirectTo={window.location.origin}
         />
       </div>
     </div>
