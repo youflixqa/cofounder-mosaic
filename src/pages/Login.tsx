@@ -16,7 +16,7 @@ const Login = () => {
   }
 
   if (session) {
-    return <Navigate to="/" />;
+    return <Navigate to="/" replace />;
   }
 
   return (
