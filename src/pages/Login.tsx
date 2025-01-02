@@ -9,29 +9,33 @@ const Login = () => {
   const { session, isLoading } = useSessionContext();
   const { toast } = useToast();
 
-  // Handle auth state changes and errors
-  supabase.auth.onAuthStateChange((event, session) => {
-    if (event === 'SIGNED_IN') {
-      toast({
-        title: "Welcome back!",
-        description: "You have successfully signed in.",
-      });
-    } else if (event === 'SIGNED_OUT') {
-      toast({
-        title: "Signed out",
-        description: "You have been signed out successfully.",
-      });
-    } else if (event === 'USER_DELETED') {
-      toast({
-        variant: "destructive",
-        title: "Account deleted",
-        description: "Your account has been deleted.",
-      });
-    } else if (event === 'USER_UPDATED') {
-      toast({
-        title: "Account updated",
-        description: "Your account has been updated successfully.",
-      });
+  // Handle auth state changes
+  supabase.auth.onAuthStateChange((event) => {
+    switch (event) {
+      case 'SIGNED_IN':
+        toast({
+          title: "Welcome back!",
+          description: "You have successfully signed in.",
+        });
+        break;
+      case 'SIGNED_OUT':
+        toast({
+          title: "Signed out",
+          description: "You have been signed out successfully.",
+        });
+        break;
+      case 'USER_UPDATED':
+        toast({
+          title: "Account updated",
+          description: "Your account has been updated successfully.",
+        });
+        break;
+      case 'PASSWORD_RECOVERY':
+        toast({
+          title: "Password Recovery",
+          description: "Check your email for password reset instructions.",
+        });
+        break;
     }
   });
 
@@ -77,13 +81,6 @@ const Login = () => {
           view="sign_in"
           showLinks={true}
           redirectTo={window.location.origin}
-          onError={(error) => {
-            toast({
-              variant: "destructive",
-              title: "Error",
-              description: error.message || "An error occurred during authentication.",
-            });
-          }}
         />
       </div>
     </div>
