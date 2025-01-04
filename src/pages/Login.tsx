@@ -47,6 +47,9 @@ const Login = () => {
     );
   }
 
+  // Get the current hostname for the redirect URL
+  const redirectTo = window.location.origin;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-white flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
@@ -75,7 +78,7 @@ const Login = () => {
             },
           }}
           providers={[]}
-          redirectTo={`${window.location.origin}/`}
+          redirectTo={redirectTo}
           view="sign_in"
           showLinks={true}
           localization={{
