@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import { useState } from "react";
 
 interface ConnectionButtonProps {
@@ -7,6 +6,7 @@ interface ConnectionButtonProps {
   isConnected: boolean;
   isPending: boolean;
   onConnect: () => Promise<void>;
+  onCancelRequest: () => Promise<void>;
 }
 
 export const ConnectionButton = ({
@@ -14,16 +14,16 @@ export const ConnectionButton = ({
   isConnected,
   isPending,
   onConnect,
+  onCancelRequest,
 }: ConnectionButtonProps) => {
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleConnect = async () => {
+  const handleAction = async (action: () => Promise<void>) => {
     try {
       setIsLoading(true);
-      await onConnect();
+      await action();
     } catch (error) {
       console.error('Connection button error:', error);
-      // Error is handled by the mutation
     } finally {
       setIsLoading(false);
     }
@@ -39,14 +39,21 @@ export const ConnectionButton = ({
 
   if (isPending) {
     return (
-      <Button variant="outline" disabled>
-        Request Pending
+      <Button 
+        variant="outline" 
+        onClick={() => handleAction(onCancelRequest)}
+        disabled={isLoading}
+      >
+        {isLoading ? "Canceling..." : "Cancel Request"}
       </Button>
     );
   }
 
   return (
-    <Button onClick={handleConnect} disabled={isLoading}>
+    <Button 
+      onClick={() => handleAction(onConnect)} 
+      disabled={isLoading}
+    >
       {isLoading ? "Sending..." : "Connect"}
     </Button>
   );

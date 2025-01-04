@@ -16,6 +16,7 @@ interface FounderCardProps {
   isConnected: boolean;
   isPendingConnection: boolean;
   onConnect: () => Promise<void>;
+  onCancelRequest: () => Promise<void>;
   bio?: string;
   email?: string;
   website?: string;
@@ -34,6 +35,7 @@ export const FounderCard = ({
   isConnected,
   isPendingConnection,
   onConnect,
+  onCancelRequest,
   bio,
   email,
   website,
@@ -45,14 +47,16 @@ export const FounderCard = ({
   return (
     <>
       <Card 
-        className="group relative overflow-hidden p-6 transition-all hover:shadow-xl hover:animate-card-hover bg-gradient-to-br from-white to-purple-50 border-2 border-primary/20 cursor-pointer"
-        onClick={() => setIsDetailViewOpen(true)}
+        className="group relative overflow-hidden p-6 transition-all hover:shadow-xl hover:animate-card-hover bg-gradient-to-br from-white to-purple-50 border-2 border-primary/20"
       >
         <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity" />
         
         <div className="relative z-10">
           <div className="flex items-start justify-between gap-4">
-            <div className="flex items-start gap-4">
+            <div 
+              className="flex items-start gap-4 cursor-pointer"
+              onClick={() => setIsDetailViewOpen(true)}
+            >
               <img
                 src={imageUrl}
                 alt={name}
@@ -68,6 +72,7 @@ export const FounderCard = ({
               isConnected={isConnected}
               isPending={isPendingConnection}
               onConnect={onConnect}
+              onCancelRequest={onCancelRequest}
             />
           </div>
 

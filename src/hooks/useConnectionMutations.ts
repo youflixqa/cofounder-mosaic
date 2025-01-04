@@ -17,7 +17,7 @@ export const useConnectionMutations = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['connectionRequests'] });
       queryClient.invalidateQueries({ queryKey: ['connections'] });
-      toast.success("Connection request accepted!");
+      queryClient.invalidateQueries({ queryKey: ['founders'] });
     },
     onError: (error) => {
       console.error('Accept connection error:', error);
@@ -36,7 +36,7 @@ export const useConnectionMutations = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['connectionRequests'] });
-      toast.success("Connection request rejected");
+      queryClient.invalidateQueries({ queryKey: ['founders'] });
     },
     onError: (error) => {
       console.error('Reject connection error:', error);
@@ -49,7 +49,6 @@ export const useConnectionMutations = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      // Check if a connection already exists
       const { data: existingConnection } = await supabase
         .from('connections')
         .select()
@@ -69,14 +68,10 @@ export const useConnectionMutations = () => {
           status: 'pending'
         });
 
-      if (error) {
-        console.error('Create connection error:', error);
-        throw error;
-      }
+      if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['connections'] });
-      toast.success("Connection request sent!");
+      queryClient.invalidateQueries({ queryKey: ['founders'] });
     },
     onError: (error) => {
       console.error('Create connection error:', error);
@@ -88,9 +83,33 @@ export const useConnectionMutations = () => {
     }
   });
 
+  const cancelConnection = useMutation({
+    mutationFn: async (founderId: string) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const { error } = await supabase
+        .from('connections')
+        .delete()
+        .eq('sender_id', user.id)
+        .eq('receiver_id', founderId)
+        .eq('status', 'pending');
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['founders'] });
+    },
+    onError: (error) => {
+      console.error('Cancel connection error:', error);
+      toast.error("Failed to cancel connection request");
+    }
+  });
+
   return {
     acceptConnection: (id: string) => acceptMutation.mutateAsync(id),
     rejectConnection: (id: string) => rejectMutation.mutateAsync(id),
-    createConnection: (founderId: string) => createConnection.mutateAsync(founderId)
+    createConnection: (founderId: string) => createConnection.mutateAsync(founderId),
+    cancelConnection: (founderId: string) => cancelConnection.mutateAsync(founderId)
   };
 };
