@@ -2,13 +2,15 @@ import { useState, useRef, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
-import { Mail, Globe, Github, Linkedin } from "lucide-react";
+import { Mail, Globe, Github, Linkedin, Plus, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSessionContext } from '@supabase/auth-helpers-react';
 import { IndustrySelector } from "@/components/profile/IndustrySelector";
 import { VerifiedBadge } from "@/components/profile/VerifiedBadge";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { ProfileImage } from "@/components/profile/ProfileImage";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import type { Profile as ProfileType, ProfileFormData } from "@/types/profile";
 
 const Profile = () => {
