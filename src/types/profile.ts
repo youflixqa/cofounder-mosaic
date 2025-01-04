@@ -10,15 +10,15 @@ export interface Profile {
   bio: string | null;
   image_url: string | null;
   industries: string[] | null;
+  website?: string;
+  github?: string;
+  linkedin?: string;
   email_verified: boolean | null;
   website_verified: boolean | null;
   github_verified: boolean | null;
   linkedin_verified: boolean | null;
   created_at: string;
   updated_at: string;
-  website?: string;
-  github?: string;
-  linkedin?: string;
 }
 
 export interface ProfileFormData {
