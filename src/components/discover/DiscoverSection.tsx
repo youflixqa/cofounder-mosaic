@@ -2,7 +2,7 @@ import { FounderCard } from "@/components/FounderCard";
 import { FilterSection } from "@/components/FilterSection";
 import { useConnectionMutations } from "@/hooks/useConnectionMutations";
 import { useCallback, useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSessionContext } from '@supabase/auth-helpers-react';
 import { toast } from "sonner";
@@ -16,6 +16,7 @@ interface Filters {
 
 export const DiscoverSection = () => {
   const { session } = useSessionContext();
+  const queryClient = useQueryClient();
   const [filters, setFilters] = useState<Filters>({
     search: "",
     city: "",
@@ -43,7 +44,7 @@ export const DiscoverSection = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [session?.user?.id]);
+  }, [session?.user?.id, queryClient]);
 
   const { data: founders = [], isLoading } = useQuery({
     queryKey: ["founders", filters],
@@ -132,15 +133,15 @@ export const DiscoverSection = () => {
             imageUrl={founder.image_url || "https://via.placeholder.com/150"}
             isConnected={founder.isConnected}
             isPendingConnection={founder.isPendingConnection}
-            onConnect={() => {
-              toast.promise(createConnection(founder.id), {
+            onConnect={async () => {
+              await toast.promise(createConnection(founder.id), {
                 loading: 'Sending connection request...',
                 success: 'Connection request sent!',
                 error: 'Failed to send connection request'
               });
             }}
-            onCancelRequest={() => {
-              toast.promise(cancelConnection(founder.id), {
+            onCancelRequest={async () => {
+              await toast.promise(cancelConnection(founder.id), {
                 loading: 'Canceling request...',
                 success: 'Connection request canceled',
                 error: 'Failed to cancel request'
