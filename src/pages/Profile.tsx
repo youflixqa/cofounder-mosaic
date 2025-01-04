@@ -1,27 +1,27 @@
-import { useState, useRef } from "react";
-import { Button } from "@/components/ui/button";
+import { useState, useRef, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
-import { Link } from "react-router-dom";
-import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Mail, Globe, Github, Linkedin, Plus, X } from "lucide-react";
+import { Mail, Globe, Github, Linkedin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSessionContext } from '@supabase/auth-helpers-react';
 import { IndustrySelector } from "@/components/profile/IndustrySelector";
 import { VerifiedBadge } from "@/components/profile/VerifiedBadge";
+import { ProfileHeader } from "@/components/profile/ProfileHeader";
+import { ProfileImage } from "@/components/profile/ProfileImage";
+import type { Profile as ProfileType, ProfileFormData } from "@/types/profile";
 
 const Profile = () => {
   const { session } = useSessionContext();
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [profile, setProfile] = useState({
+  const [profile, setProfile] = useState<ProfileFormData>({
     name: "",
     role: "",
     city: "",
-    techStack: [] as string[],
-    industries: [] as string[],
+    techStack: [],
+    industries: [],
     imageUrl: "",
     bio: "",
     email: "",
@@ -36,6 +36,10 @@ const Profile = () => {
 
   const [newTech, setNewTech] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    loadProfile();
+  }, [session?.user?.id]);
 
   const loadProfile = async () => {
     if (!session?.user?.id) return;
@@ -56,22 +60,23 @@ const Profile = () => {
     }
 
     if (data) {
+      const profileData = data as ProfileType;
       setProfile({
-        name: data.full_name,
-        role: data.role,
-        city: data.city,
-        techStack: data.tech_stack,
-        industries: data.industries || [],
-        imageUrl: data.image_url || "",
-        bio: data.bio || "",
-        email: data.email,
-        website: data.website || "",
-        github: data.github || "",
-        linkedin: data.linkedin || "",
-        email_verified: data.email_verified || false,
-        website_verified: data.website_verified || false,
-        github_verified: data.github_verified || false,
-        linkedin_verified: data.linkedin_verified || false,
+        name: profileData.full_name,
+        role: profileData.role,
+        city: profileData.city,
+        techStack: profileData.tech_stack,
+        industries: profileData.industries || [],
+        imageUrl: profileData.image_url || "",
+        bio: profileData.bio || "",
+        email: profileData.email,
+        website: profileData.website || "",
+        github: profileData.github || "",
+        linkedin: profileData.linkedin || "",
+        email_verified: profileData.email_verified || false,
+        website_verified: profileData.website_verified || false,
+        github_verified: profileData.github_verified || false,
+        linkedin_verified: profileData.linkedin_verified || false,
       });
     }
   };
@@ -85,19 +90,16 @@ const Profile = () => {
       const fileExt = file.name.split('.').pop();
       const filePath = `${session.user.id}-${Date.now()}.${fileExt}`;
 
-      // Upload image to Supabase Storage
       const { error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
-      // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('avatars')
         .getPublicUrl(filePath);
 
-      // Update profile with new image URL
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ image_url: publicUrl })
@@ -178,52 +180,23 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-white p-8">
-      <Link to="/" className="inline-flex items-center text-primary hover:text-primary/80 mb-8">
-        <ArrowLeft className="w-4 h-4 mr-2" />
-        Back to Discovery
-      </Link>
+      <ProfileHeader
+        isEditing={isEditing}
+        isLoading={isLoading}
+        onEdit={() => setIsEditing(true)}
+        onSave={handleSave}
+      />
 
       <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-8">
-        <div className="flex justify-between items-start mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 bg-clip-text text-transparent">
-            My Profile
-          </h1>
-          <Button
-            onClick={() => isEditing ? handleSave() : setIsEditing(true)}
-            className="bg-gradient-to-r from-purple-600 to-fuchsia-500 hover:from-purple-700 hover:to-fuchsia-600"
-            disabled={isLoading}
-          >
-            {isLoading ? "Saving..." : (isEditing ? "Save Changes" : "Edit Profile")}
-          </Button>
-        </div>
-
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-1">
-            <div className="relative">
-              <img
-                src={profile.imageUrl || "https://via.placeholder.com/300"}
-                alt={profile.name}
-                className="w-full h-64 object-cover rounded-xl shadow-lg mb-4"
-              />
-              {isEditing && (
-                <>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleImageUpload}
-                    accept="image/*"
-                    className="hidden"
-                  />
-                  <Button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="mt-2 w-full"
-                    disabled={isLoading}
-                  >
-                    Upload New Image
-                  </Button>
-                </>
-              )}
-            </div>
+            <ProfileImage
+              imageUrl={profile.imageUrl}
+              isEditing={isEditing}
+              isLoading={isLoading}
+              onImageUpload={handleImageUpload}
+              fileInputRef={fileInputRef}
+            />
           </div>
 
           <div className="md:col-span-2 space-y-6">

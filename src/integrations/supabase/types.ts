@@ -89,42 +89,57 @@ export type Database = {
           city: string
           created_at: string
           email: string
+          email_verified: boolean | null
           full_name: string
+          github_verified: boolean | null
           id: string
           image_url: string | null
+          industries: string[] | null
+          linkedin_verified: boolean | null
           password: string
           role: string
           space: string
           tech_stack: string[]
           updated_at: string
+          website_verified: boolean | null
         }
         Insert: {
           bio?: string | null
           city?: string
           created_at?: string
           email: string
+          email_verified?: boolean | null
           full_name: string
+          github_verified?: boolean | null
           id?: string
           image_url?: string | null
+          industries?: string[] | null
+          linkedin_verified?: boolean | null
           password: string
           role?: string
           space?: string
           tech_stack?: string[]
           updated_at?: string
+          website_verified?: boolean | null
         }
         Update: {
           bio?: string | null
           city?: string
           created_at?: string
           email?: string
+          email_verified?: boolean | null
           full_name?: string
+          github_verified?: boolean | null
           id?: string
           image_url?: string | null
+          industries?: string[] | null
+          linkedin_verified?: boolean | null
           password?: string
           role?: string
           space?: string
           tech_stack?: string[]
           updated_at?: string
+          website_verified?: boolean | null
         }
         Relationships: []
       }
