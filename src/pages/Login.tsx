@@ -9,14 +9,16 @@ const Login = () => {
   const { session, isLoading } = useSessionContext();
   const { toast } = useToast();
 
-  // Handle auth state changes
-  supabase.auth.onAuthStateChange((event) => {
+  // Handle auth state changes with improved error handling
+  supabase.auth.onAuthStateChange((event, session) => {
     switch (event) {
       case 'SIGNED_IN':
-        toast({
-          title: "Welcome back!",
-          description: "You have successfully signed in.",
-        });
+        if (session?.user) {
+          toast({
+            title: "Welcome back!",
+            description: "You have successfully signed in.",
+          });
+        }
         break;
       case 'SIGNED_OUT':
         toast({
@@ -34,6 +36,20 @@ const Login = () => {
         toast({
           title: "Password Recovery",
           description: "Check your email for password reset instructions.",
+        });
+        break;
+      case 'USER_DELETED':
+        toast({
+          title: "Account Deleted",
+          description: "Your account has been deleted successfully.",
+          variant: "destructive",
+        });
+        break;
+      case 'ERROR':
+        toast({
+          title: "Error",
+          description: "An error occurred. Please try again.",
+          variant: "destructive",
         });
         break;
     }
@@ -78,9 +94,33 @@ const Login = () => {
             }
           }}
           providers={[]}
-          redirectTo={window.location.origin}
+          redirectTo={`${window.location.origin}/`}
           view="sign_in"
           showLinks={true}
+          localization={{
+            variables: {
+              sign_in: {
+                email_label: 'Email address',
+                password_label: 'Password',
+                email_input_placeholder: 'Your email address',
+                password_input_placeholder: 'Your password',
+                button_label: 'Sign in',
+                loading_button_label: 'Signing in ...',
+                social_provider_text: 'Sign in with {{provider}}',
+                link_text: "Already have an account? Sign in",
+              },
+              sign_up: {
+                email_label: 'Email address',
+                password_label: 'Create a Password',
+                email_input_placeholder: 'Your email address',
+                password_input_placeholder: 'Create a password',
+                button_label: 'Sign up',
+                loading_button_label: 'Signing up ...',
+                social_provider_text: 'Sign up with {{provider}}',
+                link_text: "Don't have an account? Sign up",
+              },
+            },
+          }}
         />
       </div>
     </div>
