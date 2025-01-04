@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -6,33 +6,157 @@ import { useToast } from "@/components/ui/use-toast";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Mail, Globe, Github, Linkedin, Plus, X } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useSessionContext } from '@supabase/auth-helpers-react';
+import { IndustrySelector } from "@/components/profile/IndustrySelector";
+import { VerifiedBadge } from "@/components/profile/VerifiedBadge";
 
 const Profile = () => {
+  const { session } = useSessionContext();
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [profile, setProfile] = useState({
-    name: "Rahul Verma",
-    role: "Product Lead",
-    city: "Mumbai",
-    techStack: ["Python", "Django", "AI/ML"],
-    industry: "EdTech",
-    imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
-    bio: "Product leader passionate about democratizing education through technology. Built and scaled multiple ed-tech products reaching 100K+ students.",
-    email: "rahul.verma@example.com",
-    website: "https://rahulverma.dev",
-    github: "https://github.com/rahulverma",
-    linkedin: "https://linkedin.com/in/rahulverma",
+    name: "",
+    role: "",
+    city: "",
+    techStack: [] as string[],
+    industries: [] as string[],
+    imageUrl: "",
+    bio: "",
+    email: "",
+    website: "",
+    github: "",
+    linkedin: "",
+    email_verified: false,
+    website_verified: false,
+    github_verified: false,
+    linkedin_verified: false,
   });
 
   const [newTech, setNewTech] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSave = () => {
-    // TODO: Implement actual save logic
-    setIsEditing(false);
-    toast({
-      title: "Profile Updated",
-      description: "Your profile has been successfully updated.",
-    });
+  const loadProfile = async () => {
+    if (!session?.user?.id) return;
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', session.user.id)
+      .single();
+
+    if (error) {
+      toast({
+        title: "Error loading profile",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (data) {
+      setProfile({
+        name: data.full_name,
+        role: data.role,
+        city: data.city,
+        techStack: data.tech_stack,
+        industries: data.industries || [],
+        imageUrl: data.image_url || "",
+        bio: data.bio || "",
+        email: data.email,
+        website: data.website || "",
+        github: data.github || "",
+        linkedin: data.linkedin || "",
+        email_verified: data.email_verified || false,
+        website_verified: data.website_verified || false,
+        github_verified: data.github_verified || false,
+        linkedin_verified: data.linkedin_verified || false,
+      });
+    }
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !session?.user?.id) return;
+
+    setIsLoading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${session.user.id}-${Date.now()}.${fileExt}`;
+
+      // Upload image to Supabase Storage
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      // Update profile with new image URL
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ image_url: publicUrl })
+        .eq('id', session.user.id);
+
+      if (updateError) throw updateError;
+
+      setProfile({ ...profile, imageUrl: publicUrl });
+      toast({
+        title: "Success",
+        description: "Profile image updated successfully",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error uploading image",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!session?.user?.id) return;
+
+    setIsLoading(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          full_name: profile.name,
+          role: profile.role,
+          city: profile.city,
+          tech_stack: profile.techStack,
+          industries: profile.industries,
+          bio: profile.bio,
+          website: profile.website,
+          github: profile.github,
+          linkedin: profile.linkedin,
+        })
+        .eq('id', session.user.id);
+
+      if (error) throw error;
+
+      setIsEditing(false);
+      toast({
+        title: "Profile Updated",
+        description: "Your profile has been successfully updated.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error updating profile",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const addTechStack = () => {
@@ -67,27 +191,39 @@ const Profile = () => {
           <Button
             onClick={() => isEditing ? handleSave() : setIsEditing(true)}
             className="bg-gradient-to-r from-purple-600 to-fuchsia-500 hover:from-purple-700 hover:to-fuchsia-600"
+            disabled={isLoading}
           >
-            {isEditing ? "Save Changes" : "Edit Profile"}
+            {isLoading ? "Saving..." : (isEditing ? "Save Changes" : "Edit Profile")}
           </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-1">
-            <img
-              src={profile.imageUrl}
-              alt={profile.name}
-              className="w-full h-64 object-cover rounded-xl shadow-lg mb-4"
-            />
-            {isEditing && (
-              <Input
-                type="text"
-                placeholder="Image URL"
-                value={profile.imageUrl}
-                onChange={(e) => setProfile({ ...profile, imageUrl: e.target.value })}
-                className="mt-2"
+            <div className="relative">
+              <img
+                src={profile.imageUrl || "https://via.placeholder.com/300"}
+                alt={profile.name}
+                className="w-full h-64 object-cover rounded-xl shadow-lg mb-4"
               />
-            )}
+              {isEditing && (
+                <>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleImageUpload}
+                    accept="image/*"
+                    className="hidden"
+                  />
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="mt-2 w-full"
+                    disabled={isLoading}
+                  >
+                    Upload New Image
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
 
           <div className="md:col-span-2 space-y-6">
@@ -126,6 +262,12 @@ const Profile = () => {
                 <p className="text-gray-700">{profile.bio}</p>
               )}
             </div>
+
+            <IndustrySelector
+              industries={profile.industries}
+              onChange={(industries) => setProfile({ ...profile, industries })}
+              isEditing={isEditing}
+            />
 
             <div>
               <h3 className="text-lg font-semibold mb-2">Tech Stack</h3>
@@ -182,34 +324,12 @@ const Profile = () => {
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold mb-2">Industry</h3>
-                {isEditing ? (
-                  <Input
-                    type="text"
-                    value={profile.industry}
-                    onChange={(e) => setProfile({ ...profile, industry: e.target.value })}
-                  />
-                ) : (
-                  <p className="text-gray-700">{profile.industry}</p>
-                )}
-              </div>
-
-              <div>
                 <h3 className="text-lg font-semibold mb-2">Contact & Social</h3>
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <Mail className="w-5 h-5 text-gray-500" />
-                    {isEditing ? (
-                      <Input
-                        type="email"
-                        value={profile.email}
-                        onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                      />
-                    ) : (
-                      <a href={`mailto:${profile.email}`} className="text-primary hover:underline">
-                        {profile.email}
-                      </a>
-                    )}
+                    <span className="text-primary">{profile.email}</span>
+                    <VerifiedBadge isVerified={profile.email_verified} type="email" />
                   </div>
                   <div className="flex items-center gap-2">
                     <Globe className="w-5 h-5 text-gray-500" />
@@ -229,6 +349,7 @@ const Profile = () => {
                         {profile.website}
                       </a>
                     )}
+                    <VerifiedBadge isVerified={profile.website_verified} type="website" />
                   </div>
                   <div className="flex items-center gap-2">
                     <Github className="w-5 h-5 text-gray-500" />
@@ -248,6 +369,7 @@ const Profile = () => {
                         {profile.github}
                       </a>
                     )}
+                    <VerifiedBadge isVerified={profile.github_verified} type="GitHub" />
                   </div>
                   <div className="flex items-center gap-2">
                     <Linkedin className="w-5 h-5 text-gray-500" />
@@ -267,6 +389,7 @@ const Profile = () => {
                         {profile.linkedin}
                       </a>
                     )}
+                    <VerifiedBadge isVerified={profile.linkedin_verified} type="LinkedIn" />
                   </div>
                 </div>
               </div>
