@@ -30,18 +30,17 @@ export const MultiSelect = ({
 }: MultiSelectProps) => {
   const [open, setOpen] = useState(false);
 
+  // Ensure we have valid arrays to work with
+  const safeOptions = Array.isArray(options) ? options : [];
+  const safeSelected = Array.isArray(selected) ? selected : [];
+
   const handleSelect = (currentValue: string) => {
-    const safeSelected = Array.isArray(selected) ? selected : [];
     if (safeSelected.includes(currentValue)) {
       onChange(safeSelected.filter((item) => item !== currentValue));
     } else {
       onChange([...safeSelected, currentValue]);
     }
   };
-
-  // Ensure we have valid arrays to work with
-  const safeOptions = Array.isArray(options) ? options : [];
-  const safeSelected = Array.isArray(selected) ? selected : [];
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
