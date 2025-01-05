@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useSessionContext } from "@supabase/auth-helpers-react";
 import { useQuery } from "@tanstack/react-query";
-import { MessageCircle, Send, Paperclip, Smile, Reply, Edit, Trash } from "lucide-react";
+import { MessageCircle, Send, Paperclip, Smile, Reply, Edit, Trash, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
@@ -12,6 +12,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Message, parseMessage } from "@/types/chat";
 
 const Chat = () => {
+  const navigate = useNavigate();
   const { connectionId } = useParams();
   const { session } = useSessionContext();
   const { toast } = useToast();
@@ -228,6 +229,18 @@ const Chat = () => {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
+      <div className="bg-white p-4 shadow-sm flex items-center">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate(-1)}
+          className="mr-2"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <h1 className="text-lg font-semibold">Chat</h1>
+      </div>
+
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((message) => (
           <div
