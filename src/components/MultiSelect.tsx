@@ -38,6 +38,10 @@ export const MultiSelect = ({
     }
   };
 
+  // Ensure we have valid arrays to work with
+  const safeOptions = Array.isArray(options) ? options : [];
+  const safeSelected = Array.isArray(selected) ? selected : [];
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -47,9 +51,9 @@ export const MultiSelect = ({
           aria-expanded={open}
           className="w-full justify-between bg-white/80 backdrop-blur-sm"
         >
-          {selected.length === 0
+          {safeSelected.length === 0
             ? placeholder
-            : `${selected.length} selected`}
+            : `${safeSelected.length} selected`}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -58,7 +62,7 @@ export const MultiSelect = ({
           <CommandInput placeholder={`Search ${placeholder.toLowerCase()}...`} />
           <CommandEmpty>No option found.</CommandEmpty>
           <CommandGroup>
-            {(options || []).map((option) => (
+            {safeOptions.map((option) => (
               <CommandItem
                 key={option}
                 onSelect={() => handleSelect(option)}
@@ -66,7 +70,7 @@ export const MultiSelect = ({
                 <Check
                   className={cn(
                     "mr-2 h-4 w-4",
-                    selected.includes(option) ? "opacity-100" : "opacity-0"
+                    safeSelected.includes(option) ? "opacity-100" : "opacity-0"
                   )}
                 />
                 {option}
