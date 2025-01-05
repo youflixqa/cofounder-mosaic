@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -23,8 +23,8 @@ interface MultiSelectProps {
 }
 
 export const MultiSelect = ({
-  options,
-  selected,
+  options = [],
+  selected = [],
   onChange,
   placeholder,
 }: MultiSelectProps) => {
@@ -57,8 +57,8 @@ export const MultiSelect = ({
         <Command>
           <CommandInput placeholder={`Search ${placeholder.toLowerCase()}...`} />
           <CommandEmpty>No option found.</CommandEmpty>
-          <CommandGroup className="max-h-64 overflow-auto">
-            {options.map((option) => (
+          <CommandGroup>
+            {(options || []).map((option) => (
               <CommandItem
                 key={option}
                 onSelect={() => handleSelect(option)}
