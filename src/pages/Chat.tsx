@@ -9,20 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar } from "@/components/ui/avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-
-interface Message {
-  id: string;
-  content: string;
-  sender_id: string;
-  created_at: string;
-  read_status: boolean;
-  delivered_at: string | null;
-  edited_at: string | null;
-  is_edited: boolean;
-  parent_message_id: string | null;
-  reactions: Record<string, string[]>;
-  attachments: Array<{ path: string; type: string; name: string }>;
-}
+import { Message, parseMessage } from "@/types/chat";
 
 const Chat = () => {
   const { connectionId } = useParams();
@@ -71,7 +58,7 @@ const Chat = () => {
         );
       }
 
-      return data as Message[];
+      return data.map(parseMessage);
     },
   });
 
