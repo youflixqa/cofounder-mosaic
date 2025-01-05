@@ -65,6 +65,7 @@ export const MultiSelect = ({
             {safeOptions.map((option) => (
               <CommandItem
                 key={option}
+                value={option}
                 onSelect={() => handleSelect(option)}
               >
                 <Check
