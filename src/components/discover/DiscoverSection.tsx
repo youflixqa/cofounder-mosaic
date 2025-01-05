@@ -36,7 +36,6 @@ export const DiscoverSection = () => {
         table: 'connections',
         filter: `sender_id=eq.${session.user.id}`,
       }, () => {
-        // Invalidate and refetch data
         queryClient.invalidateQueries({ queryKey: ['founders'] });
       })
       .subscribe();
@@ -46,61 +45,68 @@ export const DiscoverSection = () => {
     };
   }, [session?.user?.id, queryClient]);
 
-  const { data: founders = [], isLoading } = useQuery({
+  const { data: founders = [], isLoading, error } = useQuery({
     queryKey: ["founders", filters],
     queryFn: async () => {
-      let query = supabase
-        .from("profiles")
-        .select(`
-          *,
-          connections!connections_receiver_id_fkey(
-            id,
-            status,
-            sender_id,
-            receiver_id
-          )
-        `);
-
-      if (filters.search) {
-        query = query.ilike("full_name", `%${filters.search}%`);
-      }
-
-      if (filters.cities.length > 0) {
-        query = query.in("city", filters.cities);
-      }
-
-      if (filters.industries.length > 0) {
-        query = query.in("space", filters.industries);
-      }
-
-      if (filters.technologies.length > 0) {
-        query = query.overlaps("tech_stack", filters.technologies);
-      }
-
-      // Don't show the current user in the list
-      if (session?.user?.id) {
-        query = query.neq('id', session.user.id);
-      }
-
-      const { data, error } = await query;
-
-      if (error) {
-        console.error("Error fetching founders:", error);
-        toast.error("Failed to load founders");
+      if (!session?.user?.id) {
         return [];
       }
 
-      return data.map(founder => ({
-        ...founder,
-        isConnected: founder.connections?.some(
-          conn => conn.status === 'accepted'
-        ),
-        isPendingConnection: founder.connections?.some(
-          conn => conn.status === 'pending'
-        ),
-      })) || [];
+      try {
+        let query = supabase
+          .from("profiles")
+          .select(`
+            *,
+            connections!connections_receiver_id_fkey(
+              id,
+              status,
+              sender_id,
+              receiver_id
+            )
+          `);
+
+        if (filters.search) {
+          query = query.ilike("full_name", `%${filters.search}%`);
+        }
+
+        if (filters.cities.length > 0) {
+          query = query.in("city", filters.cities);
+        }
+
+        if (filters.industries.length > 0) {
+          query = query.in("space", filters.industries);
+        }
+
+        if (filters.technologies.length > 0) {
+          query = query.overlaps("tech_stack", filters.technologies);
+        }
+
+        // Don't show the current user in the list
+        query = query.neq('id', session.user.id);
+
+        const { data, error } = await query;
+
+        if (error) {
+          console.error("Error fetching founders:", error);
+          throw error;
+        }
+
+        return (data || []).map(founder => ({
+          ...founder,
+          isConnected: founder.connections?.some(
+            conn => conn.status === 'accepted'
+          ),
+          isPendingConnection: founder.connections?.some(
+            conn => conn.status === 'pending'
+          ),
+        }));
+      } catch (error) {
+        console.error("Error in queryFn:", error);
+        throw error;
+      }
     },
-    enabled: !!session,
+    enabled: !!session?.user?.id,
+    retry: 1,
   });
 
   const { createConnection, cancelConnection } = useConnectionMutations();
@@ -108,6 +114,14 @@ export const DiscoverSection = () => {
   const handleFiltersChange = useCallback((newFilters: Filters) => {
     setFilters(newFilters);
   }, []);
+
+  if (error) {
+    return (
+      <div className="text-center py-8 text-red-500">
+        Error loading founders. Please try again later.
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -128,7 +142,7 @@ export const DiscoverSection = () => {
             name={founder.full_name}
             role={founder.role}
             city={founder.city}
-            techStack={founder.tech_stack}
+            techStack={founder.tech_stack || []}
             industry={founder.space}
             imageUrl={founder.image_url || "https://via.placeholder.com/150"}
             isConnected={founder.isConnected}
