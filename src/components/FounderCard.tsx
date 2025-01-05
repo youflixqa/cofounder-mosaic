@@ -43,6 +43,11 @@ export const FounderCard = ({
   linkedin,
 }: FounderCardProps) => {
   const [isDetailViewOpen, setIsDetailViewOpen] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  const handleImageError = () => {
+    setImageError(true);
+  };
 
   return (
     <>
@@ -58,9 +63,10 @@ export const FounderCard = ({
               onClick={() => setIsDetailViewOpen(true)}
             >
               <img
-                src={imageUrl}
+                src={imageError ? "https://via.placeholder.com/150" : imageUrl}
                 alt={name}
                 className="w-16 h-16 rounded-full object-cover border-2 border-primary"
+                onError={handleImageError}
               />
               <div>
                 <h3 className="text-2xl font-bold text-gray-900">{name}</h3>
@@ -111,7 +117,7 @@ export const FounderCard = ({
           city,
           techStack,
           industry,
-          imageUrl,
+          imageUrl: imageError ? "https://via.placeholder.com/150" : imageUrl,
           bio,
           email,
           website,

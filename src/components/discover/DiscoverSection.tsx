@@ -9,9 +9,9 @@ import { toast } from "sonner";
 
 interface Filters {
   search: string;
-  city: string;
-  industry: string;
-  technology: string;
+  cities: string[];
+  industries: string[];
+  technologies: string[];
 }
 
 export const DiscoverSection = () => {
@@ -19,9 +19,9 @@ export const DiscoverSection = () => {
   const queryClient = useQueryClient();
   const [filters, setFilters] = useState<Filters>({
     search: "",
-    city: "",
-    industry: "",
-    technology: "",
+    cities: [],
+    industries: [],
+    technologies: [],
   });
 
   // Subscribe to real-time connection updates
@@ -65,16 +65,16 @@ export const DiscoverSection = () => {
         query = query.ilike("full_name", `%${filters.search}%`);
       }
 
-      if (filters.city) {
-        query = query.eq("city", filters.city);
+      if (filters.cities.length > 0) {
+        query = query.in("city", filters.cities);
       }
 
-      if (filters.industry) {
-        query = query.eq("space", filters.industry);
+      if (filters.industries.length > 0) {
+        query = query.in("space", filters.industries);
       }
 
-      if (filters.technology) {
-        query = query.contains("tech_stack", [filters.technology]);
+      if (filters.technologies.length > 0) {
+        query = query.overlaps("tech_stack", filters.technologies);
       }
 
       // Don't show the current user in the list

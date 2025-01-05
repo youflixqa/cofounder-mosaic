@@ -13,6 +13,8 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          last_message: string | null
+          last_message_time: string | null
           receiver_id: string
           sender_id: string
           status: Database["public"]["Enums"]["connection_status"]
@@ -21,6 +23,8 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          last_message?: string | null
+          last_message_time?: string | null
           receiver_id: string
           sender_id: string
           status?: Database["public"]["Enums"]["connection_status"]
@@ -29,6 +33,8 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          last_message?: string | null
+          last_message_time?: string | null
           receiver_id?: string
           sender_id?: string
           status?: Database["public"]["Enums"]["connection_status"]
