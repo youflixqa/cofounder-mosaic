@@ -167,18 +167,21 @@ export type Database = {
           email: string
           email_verified: boolean | null
           full_name: string
+          github: string | null
           github_verified: boolean | null
           id: string
           image_url: string | null
           industries: string[] | null
           is_online: boolean | null
           last_seen: string | null
+          linkedin: string | null
           linkedin_verified: boolean | null
           password: string
           role: string
           space: string
           tech_stack: string[]
           updated_at: string
+          website: string | null
           website_verified: boolean | null
         }
         Insert: {
@@ -188,18 +191,21 @@ export type Database = {
           email: string
           email_verified?: boolean | null
           full_name: string
+          github?: string | null
           github_verified?: boolean | null
           id?: string
           image_url?: string | null
           industries?: string[] | null
           is_online?: boolean | null
           last_seen?: string | null
+          linkedin?: string | null
           linkedin_verified?: boolean | null
           password: string
           role?: string
           space?: string
           tech_stack?: string[]
           updated_at?: string
+          website?: string | null
           website_verified?: boolean | null
         }
         Update: {
@@ -209,18 +215,21 @@ export type Database = {
           email?: string
           email_verified?: boolean | null
           full_name?: string
+          github?: string | null
           github_verified?: boolean | null
           id?: string
           image_url?: string | null
           industries?: string[] | null
           is_online?: boolean | null
           last_seen?: string | null
+          linkedin?: string | null
           linkedin_verified?: boolean | null
           password?: string
           role?: string
           space?: string
           tech_stack?: string[]
           updated_at?: string
+          website?: string | null
           website_verified?: boolean | null
         }
         Relationships: []
