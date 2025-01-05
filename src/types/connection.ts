@@ -7,6 +7,8 @@ export interface Connection {
   status: ConnectionStatus;
   createdAt: string;
   updatedAt: string;
+  lastMessage?: string | null;
+  lastMessageTime?: string | null;
 }
 
 export interface ConnectionWithProfile extends Connection {

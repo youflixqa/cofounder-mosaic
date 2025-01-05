@@ -18,6 +18,8 @@ export const useConnections = () => {
           status,
           created_at,
           updated_at,
+          last_message,
+          last_message_time,
           sender:profiles!connections_sender_id_fkey (
             name:full_name,
             role,
@@ -41,6 +43,8 @@ export const useConnections = () => {
         status: item.status,
         createdAt: item.created_at,
         updatedAt: item.updated_at,
+        lastMessage: item.last_message,
+        lastMessageTime: item.last_message_time,
         sender: {
           name: item.sender.name,
           role: item.sender.role,
