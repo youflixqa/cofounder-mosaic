@@ -16,7 +16,7 @@ const Index = () => {
 
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent mb-4">
-            Find Your Perfect Co-Founder
+            Find Your Perfect Co-Founder 123 shobhit
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Connect with talented founders across India's thriving tech ecosystem
