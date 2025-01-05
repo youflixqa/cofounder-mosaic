@@ -30,16 +30,11 @@ export const MultiSelect = ({
 }: MultiSelectProps) => {
   const [open, setOpen] = useState(false);
 
-  // Ensure we have valid arrays to work with
-  const safeOptions = Array.isArray(options) ? options : [];
-  const safeSelected = Array.isArray(selected) ? selected : [];
-
   const handleSelect = (currentValue: string) => {
-    if (safeSelected.includes(currentValue)) {
-      onChange(safeSelected.filter((item) => item !== currentValue));
-    } else {
-      onChange([...safeSelected, currentValue]);
-    }
+    const updatedSelection = selected.includes(currentValue)
+      ? selected.filter((item) => item !== currentValue)
+      : [...selected, currentValue];
+    onChange(updatedSelection);
   };
 
   return (
@@ -51,9 +46,9 @@ export const MultiSelect = ({
           aria-expanded={open}
           className="w-full justify-between bg-white/80 backdrop-blur-sm"
         >
-          {safeSelected.length === 0
+          {selected.length === 0
             ? placeholder
-            : `${safeSelected.length} selected`}
+            : `${selected.length} selected`}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -62,7 +57,7 @@ export const MultiSelect = ({
           <CommandInput placeholder={`Search ${placeholder.toLowerCase()}...`} />
           <CommandEmpty>No option found.</CommandEmpty>
           <CommandGroup>
-            {safeOptions.map((option) => (
+            {(options || []).map((option) => (
               <CommandItem
                 key={option}
                 value={option}
@@ -71,7 +66,7 @@ export const MultiSelect = ({
                 <Check
                   className={cn(
                     "mr-2 h-4 w-4",
-                    safeSelected.includes(option) ? "opacity-100" : "opacity-0"
+                    selected.includes(option) ? "opacity-100" : "opacity-0"
                   )}
                 />
                 {option}
