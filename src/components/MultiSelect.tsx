@@ -30,11 +30,12 @@ export const MultiSelect = ({
 }: MultiSelectProps) => {
   const [open, setOpen] = useState(false);
 
-  const handleSelect = (option: string) => {
-    if (selected.includes(option)) {
-      onChange(selected.filter((item) => item !== option));
+  const handleSelect = (currentValue: string) => {
+    const safeSelected = Array.isArray(selected) ? selected : [];
+    if (safeSelected.includes(currentValue)) {
+      onChange(safeSelected.filter((item) => item !== currentValue));
     } else {
-      onChange([...selected, option]);
+      onChange([...safeSelected, currentValue]);
     }
   };
 
