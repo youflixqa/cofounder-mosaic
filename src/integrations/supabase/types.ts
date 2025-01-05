@@ -11,26 +11,47 @@ export type Database = {
     Tables: {
       chat_messages: {
         Row: {
+          attachments: Json | null
           connection_id: string
           content: string
           created_at: string
+          delivered_at: string | null
+          edited_at: string | null
           id: string
+          is_edited: boolean | null
+          parent_message_id: string | null
+          reactions: Json | null
+          read_status: boolean | null
           sender_id: string
           updated_at: string
         }
         Insert: {
+          attachments?: Json | null
           connection_id: string
           content: string
           created_at?: string
+          delivered_at?: string | null
+          edited_at?: string | null
           id?: string
+          is_edited?: boolean | null
+          parent_message_id?: string | null
+          reactions?: Json | null
+          read_status?: boolean | null
           sender_id: string
           updated_at?: string
         }
         Update: {
+          attachments?: Json | null
           connection_id?: string
           content?: string
           created_at?: string
+          delivered_at?: string | null
+          edited_at?: string | null
           id?: string
+          is_edited?: boolean | null
+          parent_message_id?: string | null
+          reactions?: Json | null
+          read_status?: boolean | null
           sender_id?: string
           updated_at?: string
         }
@@ -40,6 +61,13 @@ export type Database = {
             columns: ["connection_id"]
             isOneToOne: false
             referencedRelation: "connections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_messages_parent_message_id_fkey"
+            columns: ["parent_message_id"]
+            isOneToOne: false
+            referencedRelation: "chat_messages"
             referencedColumns: ["id"]
           },
           {
@@ -143,6 +171,8 @@ export type Database = {
           id: string
           image_url: string | null
           industries: string[] | null
+          is_online: boolean | null
+          last_seen: string | null
           linkedin_verified: boolean | null
           password: string
           role: string
@@ -162,6 +192,8 @@ export type Database = {
           id?: string
           image_url?: string | null
           industries?: string[] | null
+          is_online?: boolean | null
+          last_seen?: string | null
           linkedin_verified?: boolean | null
           password: string
           role?: string
@@ -181,6 +213,8 @@ export type Database = {
           id?: string
           image_url?: string | null
           industries?: string[] | null
+          is_online?: boolean | null
+          last_seen?: string | null
           linkedin_verified?: boolean | null
           password?: string
           role?: string
