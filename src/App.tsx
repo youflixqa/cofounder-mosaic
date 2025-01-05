@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import Login from "./pages/Login";
+import Chat from "./pages/Chat";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,7 @@ const App = () => (
             <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            <Route path="/chat/:connectionId" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
