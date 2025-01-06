@@ -27,7 +27,6 @@ export const FilterSection = ({ onFiltersChange }: FilterSectionProps) => {
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
   const [selectedTechnologies, setSelectedTechnologies] = useState<string[]>([]);
 
-  // Fetch filter options from the database
   const { data: filterOptions = [], isLoading } = useQuery({
     queryKey: ["filterOptions"],
     queryFn: async () => {
@@ -45,18 +44,17 @@ export const FilterSection = ({ onFiltersChange }: FilterSectionProps) => {
     },
   });
 
-  // Organize filter options by type
+  // Organize filter options by type with safe fallbacks
   const cities = filterOptions
     .filter((option) => option.type === "city")
-    .map((option) => option.value);
+    .map((option) => option.value) || [];
   const industries = filterOptions
     .filter((option) => option.type === "industry")
-    .map((option) => option.value);
+    .map((option) => option.value) || [];
   const technologies = filterOptions
     .filter((option) => option.type === "technology")
-    .map((option) => option.value);
+    .map((option) => option.value) || [];
 
-  // Update filters immediately when search changes
   useEffect(() => {
     const debounceTimeout = setTimeout(() => {
       onFiltersChange({
