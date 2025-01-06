@@ -28,7 +28,7 @@ export const FilterSection = ({ onFiltersChange }: FilterSectionProps) => {
   const [selectedTechnologies, setSelectedTechnologies] = useState<string[]>([]);
 
   // Fetch filter options from the database
-  const { data: filterOptions = [] } = useQuery({
+  const { data: filterOptions = [], isLoading } = useQuery({
     queryKey: ["filterOptions"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -72,6 +72,21 @@ export const FilterSection = ({ onFiltersChange }: FilterSectionProps) => {
 
   console.log("Selected Industries:", selectedIndustries); // Debug log
   console.log("Available Industries:", industries); // Debug log
+
+  if (isLoading) {
+    return (
+      <div className="w-full p-6 bg-gradient-to-r from-primary/5 via-secondary/5 to-accent/5 rounded-lg">
+        <div className="animate-pulse space-y-4">
+          <div className="h-10 bg-gray-200 rounded"></div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="h-10 bg-gray-200 rounded"></div>
+            <div className="h-10 bg-gray-200 rounded"></div>
+            <div className="h-10 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full p-6 bg-gradient-to-r from-primary/5 via-secondary/5 to-accent/5 rounded-lg">
