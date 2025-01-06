@@ -41,7 +41,7 @@ export const FilterSection = ({ onFiltersChange }: FilterSectionProps) => {
         throw error;
       }
 
-      return data as unknown as FilterOption[];
+      return data as FilterOption[];
     },
   });
 
@@ -69,6 +69,9 @@ export const FilterSection = ({ onFiltersChange }: FilterSectionProps) => {
 
     return () => clearTimeout(debounceTimeout);
   }, [search, selectedCities, selectedIndustries, selectedTechnologies, onFiltersChange]);
+
+  console.log("Selected Industries:", selectedIndustries); // Debug log
+  console.log("Available Industries:", industries); // Debug log
 
   return (
     <div className="w-full p-6 bg-gradient-to-r from-primary/5 via-secondary/5 to-accent/5 rounded-lg">

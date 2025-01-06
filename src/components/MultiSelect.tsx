@@ -34,10 +34,14 @@ export const MultiSelect = ({
   const safeOptions = Array.isArray(options) ? options : [];
   const safeSelected = Array.isArray(selected) ? selected : [];
 
+  console.log("MultiSelect Options:", safeOptions); // Debug log
+  console.log("MultiSelect Selected:", safeSelected); // Debug log
+
   const handleSelect = (currentValue: string) => {
     const updatedSelection = safeSelected.includes(currentValue)
       ? safeSelected.filter((item) => item !== currentValue)
       : [...safeSelected, currentValue];
+    console.log("Updating selection to:", updatedSelection); // Debug log
     onChange(updatedSelection);
   };
 
