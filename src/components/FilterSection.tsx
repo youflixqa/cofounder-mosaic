@@ -56,13 +56,18 @@ export const FilterSection = ({ onFiltersChange }: FilterSectionProps) => {
     .filter((option) => option.type === "technology")
     .map((option) => option.value);
 
+  // Update filters immediately when search changes
   useEffect(() => {
-    onFiltersChange({
-      search,
-      cities: selectedCities,
-      industries: selectedIndustries,
-      technologies: selectedTechnologies,
-    });
+    const debounceTimeout = setTimeout(() => {
+      onFiltersChange({
+        search,
+        cities: selectedCities,
+        industries: selectedIndustries,
+        technologies: selectedTechnologies,
+      });
+    }, 100); // Small delay to prevent too many rapid updates
+
+    return () => clearTimeout(debounceTimeout);
   }, [search, selectedCities, selectedIndustries, selectedTechnologies, onFiltersChange]);
 
   return (
