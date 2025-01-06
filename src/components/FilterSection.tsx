@@ -3,10 +3,8 @@ import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { MultiSelect } from "./MultiSelect";
-
-const cities = ["Bangalore", "Mumbai", "Delhi", "Hyderabad", "Pune", "Chennai"];
-const industries = ["Fintech", "EdTech", "HealthTech", "E-commerce", "SaaS", "AI/ML"];
-const technologies = ["React", "Python", "Node.js", "Java", "Flutter", "AWS"];
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 interface FilterSectionProps {
   onFiltersChange: (filters: {
@@ -17,11 +15,46 @@ interface FilterSectionProps {
   }) => void;
 }
 
+interface FilterOption {
+  id: string;
+  type: string;
+  value: string;
+}
+
 export const FilterSection = ({ onFiltersChange }: FilterSectionProps) => {
   const [search, setSearch] = useState("");
   const [selectedCities, setSelectedCities] = useState<string[]>([]);
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
   const [selectedTechnologies, setSelectedTechnologies] = useState<string[]>([]);
+
+  // Fetch filter options from the database
+  const { data: filterOptions = [] } = useQuery({
+    queryKey: ["filterOptions"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("filter_options")
+        .select("*")
+        .order("value");
+
+      if (error) {
+        console.error("Error fetching filter options:", error);
+        throw error;
+      }
+
+      return data as FilterOption[];
+    },
+  });
+
+  // Organize filter options by type
+  const cities = filterOptions
+    .filter((option) => option.type === "city")
+    .map((option) => option.value);
+  const industries = filterOptions
+    .filter((option) => option.type === "industry")
+    .map((option) => option.value);
+  const technologies = filterOptions
+    .filter((option) => option.type === "technology")
+    .map((option) => option.value);
 
   useEffect(() => {
     onFiltersChange({
