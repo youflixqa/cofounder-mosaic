@@ -65,13 +65,10 @@ export const FilterSection = ({ onFiltersChange }: FilterSectionProps) => {
         industries: selectedIndustries,
         technologies: selectedTechnologies,
       });
-    }, 100); // Small delay to prevent too many rapid updates
+    }, 100);
 
     return () => clearTimeout(debounceTimeout);
   }, [search, selectedCities, selectedIndustries, selectedTechnologies, onFiltersChange]);
-
-  console.log("Selected Industries:", selectedIndustries); // Debug log
-  console.log("Available Industries:", industries); // Debug log
 
   if (isLoading) {
     return (
