@@ -41,7 +41,7 @@ export const FilterSection = ({ onFiltersChange }: FilterSectionProps) => {
         throw error;
       }
 
-      return data as FilterOption[];
+      return data as unknown as FilterOption[];
     },
   });
 

@@ -195,6 +195,30 @@ export type Database = {
           },
         ]
       }
+      filter_options: {
+        Row: {
+          created_at: string
+          id: string
+          type: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          type: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          type?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           bio: string | null
