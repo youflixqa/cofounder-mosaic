@@ -9,6 +9,42 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admins: {
+        Row: {
+          auth_user_id: string | null
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          last_login: string | null
+          password: string
+          role: Database["public"]["Enums"]["admin_role"]
+          updated_at: string
+        }
+        Insert: {
+          auth_user_id?: string | null
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          last_login?: string | null
+          password: string
+          role?: Database["public"]["Enums"]["admin_role"]
+          updated_at?: string
+        }
+        Update: {
+          auth_user_id?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          last_login?: string | null
+          password?: string
+          role?: Database["public"]["Enums"]["admin_role"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       chat_messages: {
         Row: {
           attachments: Json | null
@@ -162,6 +198,8 @@ export type Database = {
       profiles: {
         Row: {
           bio: string | null
+          can_chat: boolean | null
+          can_connect: boolean | null
           city: string
           created_at: string
           email: string
@@ -186,6 +224,8 @@ export type Database = {
         }
         Insert: {
           bio?: string | null
+          can_chat?: boolean | null
+          can_connect?: boolean | null
           city?: string
           created_at?: string
           email: string
@@ -210,6 +250,8 @@ export type Database = {
         }
         Update: {
           bio?: string | null
+          can_chat?: boolean | null
+          can_connect?: boolean | null
           city?: string
           created_at?: string
           email?: string
@@ -283,6 +325,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      admin_role: "super_admin" | "admin"
       connection_status: "pending" | "accepted" | "rejected"
     }
     CompositeTypes: {

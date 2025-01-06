@@ -65,33 +65,37 @@ export const DiscoverSection = () => {
             )
           `);
 
+        // Apply search filter
         if (filters.search) {
-          query = query.ilike("full_name", `%${filters.search}%`);
+          query = query.or(`full_name.ilike.%${filters.search}%,role.ilike.%${filters.search}%`);
         }
 
+        // Apply city filter
         if (filters.cities.length > 0) {
-          query = query.in("city", filters.cities);
+          query = query.in('city', filters.cities);
         }
 
+        // Apply industry filter
         if (filters.industries.length > 0) {
-          query = query.in("space", filters.industries);
+          query = query.in('space', filters.industries);
         }
 
+        // Apply technology filter
         if (filters.technologies.length > 0) {
-          query = query.overlaps("tech_stack", filters.technologies);
+          query = query.contains('tech_stack', filters.technologies);
         }
 
         // Don't show the current user in the list
         query = query.neq('id', session.user.id);
 
-        const { data, error } = await query;
+        const { data: foundersData, error } = await query;
 
         if (error) {
           console.error("Error fetching founders:", error);
           throw error;
         }
 
-        return (data || []).map(founder => ({
+        return (foundersData || []).map(founder => ({
           ...founder,
           isConnected: founder.connections?.some(
             conn => conn.status === 'accepted'
